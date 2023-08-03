@@ -1,0 +1,353 @@
+Estrutura de código para gerar,gravar,editar, pesquisar e excluir um arquivo. Utilizando os seguites recursos: Struct, Arquivos, Vetores e Ponteiros...
+------------------------------------------------------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+
+typedef struct dados
+{
+    int codigo;
+    char nome[20];
+    char sobrenome[20];
+    int rg;
+    int telefone;
+    float salario;
+    int status;
+} CLIENTE;
+
+
+
+inserir()
+{
+
+    char numstr[10];
+    char resp;
+
+    FILE *fptr;
+    CLIENTE fatec;
+
+    fptr=fopen("arquivo","ab");
+
+    if(fptr == NULL)
+    {
+        printf("\n Problemas com Abertura do Arquivo");
+        system("pause");
+    }
+
+
+    system("cls");
+    do
+    {
+
+        printf("\n *********************************************");
+        printf("\n *********** CADASTRO DE REGISTRO ************");
+        printf("\n *********************************************\n");
+
+        printf("\n Digite o Codigo do Cliente\n");
+        scanf("%i",&fatec.codigo);
+        fflush(stdin);
+        if (fatec.codigo == "" )
+        {
+            printf("Campo nao pode ficar vazio \n");
+        }
+
+        printf("\n Digite o Nome do Cliente\n");
+        gets(fatec.nome);
+        fflush(stdin);
+
+        printf("\n Digite o Sobrenome do Cliente\n");
+        gets(fatec.sobrenome);
+        fflush(stdin);
+
+        printf("\n Digite o RG do Cliente\n");
+        gets(numstr);
+        fatec.rg = atoi(numstr);
+        fflush(stdin);
+
+        printf("\n Digite o Telefone do Cliente\n");
+        gets(numstr);
+        fatec.telefone = atoi(numstr);
+        fflush(stdin);
+
+        printf("\n Digite a Renda do Cliente\n");
+        gets(numstr);
+        fatec.salario= atof(numstr);
+        fflush(stdin);
+
+        fwrite(&fatec,sizeof(fatec),1,fptr);
+
+        printf("\n Deseja continuar o cadastro [S]im ou [N]ao");
+        resp = getchar();
+    }
+    while(resp == 's'|| resp == 'S');
+
+    fclose(fptr);
+
+}
+
+pesquisa()
+{
+
+    char numstr[20];
+    int achou =0;  //flag
+
+
+    FILE *fptr;
+    CLIENTE fatec;
+
+    fptr=fopen("arquivo","rb");
+
+    if(fptr == NULL)
+    {
+        printf("\n Problemas com Abertura do Arquivo");
+        system("pause");
+    }
+    else
+    {
+
+        system("cls");
+        printf("\n *********************************************");
+        printf("\n ********* Pesquisa por Sobrenome ************");
+        printf("\n *********************************************\n");
+
+
+        printf("\n Informe o Sobrenome do Cliente a ser pesquisado\n");
+        scanf("%s",&numstr);
+        fflush(stdin);
+
+        while(fread(&fatec,sizeof(CLIENTE),1,fptr))
+        {
+            if (strcmp(numstr,fatec.sobrenome)==0)
+            {
+                printf("\n Codigo ...:%d",fatec.codigo);
+                printf("\n Nome......:%s",fatec.nome);
+                printf("\n RG .......:%d",fatec.rg);
+                printf("\n Telefone..:%d",fatec.telefone);
+                printf("\n Salario ..:%.2f",fatec.salario);
+                system("pause");
+                achou =1;
+                break;
+            }
+        }
+
+    }
+
+    if (achou == 0)
+    {
+        printf("\n Registro nao foi encontrado.. tente novamente\n");
+        system("pause");
+    }
+
+
+    fclose(fptr);
+
+}
+
+exibir()
+{
+    float total;
+    FILE *fptr;
+    CLIENTE fatec;
+
+    fptr=fopen("arquivo","rb");
+
+    if(fptr == NULL)
+    {
+        printf("\n Problemas com Abertura do Arquivo");
+        system("pause");
+    }
+    else
+    {
+
+        system("cls");
+        printf("\n *********************************************");
+        printf("\n ******** Relatorio do Arquivo ***************");
+        printf("\n *********************************************\n");
+        printf("\n Codigo \t Nome \t\t Telefone \t  Salario");
+
+
+        while(fread(&fatec,sizeof(CLIENTE),1,fptr))
+        {
+            printf("\n%-10d \t%-20s \t%-10d \t%-10.2f", fatec.codigo, fatec.nome, fatec.telefone, fatec.salario);
+
+            total+= fatec.salario;
+        }
+
+        printf("\n  *************************************************");
+        printf("\n  ********************************* Salario    R$ %.f",total);
+        printf("\n  *************************************************\n");
+        printf("\n\n");
+        system("pause");
+
+        fclose(fptr);
+
+    }
+}
+
+alterar()
+{
+    char numstr[20];
+    int c;
+    c=0;
+    FILE *fptr;
+    CLIENTE fatec;
+
+    fptr=fopen("arquivo","rb+");
+
+    if(fptr == NULL)
+    {
+        printf("\n Problemas com Abertura do Arquivo");
+        system("pause");
+    }
+    else
+    {
+
+        system("cls");
+        printf("\n *********************************************");
+        printf("\n ******** Alteracao de Registro **************");
+        printf("\n *********************************************\n");
+
+        printf("\n Informe o nome do Cliente a ser pesquisado");
+        gets(numstr);
+        fflush(stdin);
+
+        fread(&fatec,sizeof(CLIENTE),1,fptr);
+
+        while(!feof(fptr) && strcmp(numstr,fatec.nome)!=0)
+        {
+            fread(&fatec,sizeof(CLIENTE),1,fptr);
+            c++;
+
+        }
+
+        if(feof(fptr))
+        {
+            printf("\n Registro nao consta no Arquivo");
+            printf("\n\n");
+            system("pause");
+
+        }
+        else
+        {
+
+            fseek(fptr,c*sizeof(CLIENTE),SEEK_SET);
+            printf("\n Nome .....: %s",fatec.nome);
+            printf("\n Sobrenome...%s",fatec.sobrenome);
+            printf("\n Rg..........%d",fatec.rg);
+            printf("\n Telefone ...%d",fatec.telefone);
+            scanf("%d",&fatec.telefone);
+            printf("\n Salario ....%.2f",fatec.salario);
+            scanf("%f",&fatec.salario);
+
+            fwrite(&fatec,sizeof(CLIENTE),1,fptr);
+
+        }
+
+    }
+    fclose(fptr);
+}
+void deletar()
+{
+    char numstr[20];
+    int found = 0;
+
+    FILE *fptr;
+    FILE *temp;
+    CLIENTE fatec;
+
+    fptr = fopen("arquivo", "rb+");
+    temp = fopen("tempfile", "wb"); // Arquivo temporário para gravação de registros modificados
+
+    if (fptr == NULL || temp == NULL)
+    {
+        printf("\n Problemas com Abertura do Arquivo");
+        system("pause");
+    }
+    else
+    {
+        system("cls");
+        printf("\n *********************************************");
+        printf("\n *********** Deletar Registro *****************");
+        printf("\n **********************************************\n");
+
+        printf("\n Informe o nome do Cliente a ser deletado: ");
+        gets(numstr);
+        fflush(stdin);
+
+        while (fread(&fatec, sizeof(CLIENTE), 1, fptr))
+        {
+            if (strcmp(numstr, fatec.nome) != 0)
+            {
+                fwrite(&fatec, sizeof(CLIENTE), 1, temp); // Grava registros em arquivo temporário, exceto aquele a ser excluído
+            }
+            else
+            {
+                found = 1; // Registro encontrado e excluído
+            }
+        }
+
+        fclose(fptr);
+        fclose(temp);
+
+        remove("arquivo");     // Excluir o arquivo original
+        rename("tempfile", "arquivo"); //Renomeie o arquivo temporário para o nome do arquivo original
+
+        if (found)
+        {
+            printf("\n Registro deletado com sucesso.");
+        }
+        else
+        {
+            printf("\n Registro nao encontrado.");
+        }
+
+        printf("\n\n");
+        system("pause");
+    }
+}
+
+int main()
+{
+    int op;
+    do
+    {
+        system("cls");
+        printf("\n [1] - Inserir Registro..............");
+        printf("\n [2] - Consultar Registro............");
+        printf("\n [3] - Exibir - Relatorio de Clientes");
+        printf("\n [4] - Alterar Registro..............");
+        printf("\n [5] - Deletar Registro..............");
+        printf("\n [6] - Sair");
+        printf("\n  ****  Informe a Opcao Desejada****\n");
+
+        scanf("%d",&op);
+        fflush(stdin);
+
+        switch (op)
+        {
+
+        case 1:
+            inserir();
+            break;
+        case 2:
+            pesquisa();
+            break;
+        case 3:
+            exibir();
+            break;
+        case 4:
+            alterar();
+            break;
+        case 5:
+            deletar();
+            break;
+        case 6:
+            exit(0);
+        default :
+            printf("\n Opcao Invalida.. tente novamente \n");
+            system("pause");
+        }
+    }
+    while(op!=6);
+}
