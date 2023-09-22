@@ -36,4 +36,4 @@ int main ()
     printf("RA: %d, Nome: %s\n",current->RA_aluno,current->nome_aluno);
 
 
-
+// no codigo abordei os principais topicos da estrutura, pode conter bugs mas em breve terá atualizações;
